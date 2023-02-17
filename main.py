@@ -28,13 +28,13 @@ for id_ in range(2, 12):
     h.add_bs(bs_x)
 
 # Roda a Hetnet apenas 1 Vez
-for step in range(10):
+for step in range(1):
 
     # Roda a HetNet com densidade aproximada de 200 UEs/km2
-    h.run(user_density=200)
+    h.run(user_density=300)
 
     # Imprime qual o grau de satisfção dos UEs
-    print("Step: {} - Satisfação Global: {} | UEs: {}".format(step, h.evaluation['satisfaction'], len(h.ue_list)))
+    print("Execução: {} - Satisfação Global: {} | UEs: {}".format(step, h.evaluation['satisfaction'], len(h.ue_list)))
 
     # Se a safisfação dos UEs for menos que um valor defindo em Network.DEFAULT.outage_threshold
     if h.evaluation['satisfaction'] <= (Network.DEFAULT.outage_threshold * 100):
@@ -43,3 +43,5 @@ for step in range(10):
         h.debug()
 
         # Nesse ponto o Algoritmo de AR deve ser chamado para aumentar a satisfação dos UES
+        print('Chamar aqui algoritmos de AR')
+        print()

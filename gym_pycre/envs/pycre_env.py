@@ -16,7 +16,7 @@ class PyCREEnv(gym.Env):
         self.priority_ues_weight = self.working_slice.cluster.bs_list[-1].hetnet.env.priority_ues_weight
         self.ordinary_ues_weight = self.working_slice.cluster.bs_list[-1].hetnet.env.ordinary_ues_weight
         self.current_state = int(self.working_slice.cluster.evaluation["satisfaction"])
-        self.reward_range = (-100, 10000)
+        self.reward_range = (-100000, 100000)
         self.action_space = spaces.Discrete(len(self.working_slice.selected_bs) * 9)
         self.observation_space = spaces.Discrete(101)
 
