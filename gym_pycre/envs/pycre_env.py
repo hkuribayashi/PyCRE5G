@@ -3,7 +3,7 @@ import copy
 import numpy as np
 from gym import spaces
 
-from simulations.rlm.teste import ScoreScaler
+from utils.scaler import ScoreScaler
 
 
 class PyCREEnv(gym.Env):
@@ -13,9 +13,9 @@ class PyCREEnv(gym.Env):
         super(PyCREEnv, self).__init__()
         self.network_slice = kwargs["network_slice"]
         self.working_slice = copy.deepcopy(kwargs["network_slice"])
-        self.priority_ues_weight = self.working_slice.cluster.bs_list[-1].hetnet.env.priority_ues_weight
-        self.ordinary_ues_weight = self.working_slice.cluster.bs_list[-1].hetnet.env.ordinary_ues_weight
-        self.current_state = int(self.working_slice.cluster.evaluation["satisfaction"])
+        self.priority_ues_weight = self.working_slice.priority_ues_weight
+        self.ordinary_ues_weight = self.working_slice.ordinary_ues_weight
+        self.current_state = int(self.working_slice.evaluation * 100)
         self.reward_range = (-100000, 100000)
         self.action_space = spaces.Discrete(len(self.working_slice.selected_bs) * 9)
         self.observation_space = spaces.Discrete(101)
@@ -64,14 +64,14 @@ class PyCREEnv(gym.Env):
                 reward = 2 * (new_state / divisor)
             elif new_state < self.current_state:
                 divisor = 1 if self.current_state == 0 else self.current_state
-                new_reward = (new_state/divisor) + 1
+                new_reward = (new_state / divisor) + 1
                 reward = (-2) * new_reward if new_reward > 0 else -100
 
         return new_state, reward, done, info
 
     def reset(self):
         self.working_slice = copy.deepcopy(self.network_slice)
-        state = int(self.working_slice.cluster.evaluation['satisfaction'])
+        state = int(self.working_slice.evaluation)
         return state
 
     def render(self, mode='human', close=False):
@@ -105,9 +105,9 @@ class PyCREEnv(gym.Env):
         return full_flag
 
     def compute_satisfaction(self):
-        fulfilled_qos_ues = np.array([ue for ue in self.working_slice.cluster.ue_list if ue.evaluation is True])
-        total_priority_ues = len([ue for ue in self.working_slice.cluster.ue_list if ue.priority is True])
-        total_ordinary_ues = len([ue for ue in self.working_slice.cluster.ue_list if ue.priority is False])
+        fulfilled_qos_ues = np.array([ue for ue in self.working_slice.ue_list if ue.evaluation is True])
+        total_priority_ues = len([ue for ue in self.working_slice.ue_list if ue.priority is True])
+        total_ordinary_ues = len([ue for ue in self.working_slice.ue_list if ue.priority is False])
 
         weighted_sum = 0
         for ue in fulfilled_qos_ues:
@@ -122,8 +122,8 @@ class PyCREEnv(gym.Env):
     def compute_bs_load(self):
         load = 0
         for bs in self.working_slice.selected_bs:
-            load += (bs.load/bs.max_load) * 100
-        mean_load = load/len(self.working_slice.selected_bs)
+            load += (bs.load / bs.max_load) * 100
+        mean_load = load / len(self.working_slice.selected_bs)
         return mean_load
 
 
@@ -167,7 +167,7 @@ class PyCREEnvMD(gym.Env):
             reward = 1 * (new_state / divisor)
         elif new_state < self.current_state:
             divisor = 1 if self.current_state == 0 else self.current_state
-            new_reward = (new_state/divisor) + 1
+            new_reward = (new_state / divisor) + 1
             reward = (-1) * new_reward if new_reward > 0 else -100
 
         return new_state, reward, done, info
@@ -221,8 +221,8 @@ class PyCREEnvMD(gym.Env):
     def compute_bs_load(self):
         load = 0
         for bs in self.working_slice.selected_bs:
-            load += (bs.load/bs.max_load) * 100
-        mean_load = load/len(self.working_slice.selected_bs)
+            load += (bs.load / bs.max_load) * 100
+        mean_load = load / len(self.working_slice.selected_bs)
         return mean_load
 
 
@@ -264,7 +264,7 @@ class PyCREEnvC(gym.Env):
             reward = 1 * (new_state / divisor)
         elif new_state < self.current_state:
             divisor = 1 if self.current_state == 0 else self.current_state
-            new_reward = (new_state/divisor) + 1
+            new_reward = (new_state / divisor) + 1
             reward = (-1) * new_reward if new_reward > 0 else -100
 
         return new_state, reward, done, info
@@ -310,6 +310,6 @@ class PyCREEnvC(gym.Env):
     def compute_bs_load(self):
         load = 0
         for bs in self.working_slice.selected_bs:
-            load += (bs.load/bs.max_load) * 100
-        mean_load = load/len(self.working_slice.selected_bs)
+            load += (bs.load / bs.max_load) * 100
+        mean_load = load / len(self.working_slice.selected_bs)
         return mean_load

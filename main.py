@@ -1,12 +1,10 @@
 import random
 import numpy as np
 
-from config.DQNConfig import DQNConfig
 from config.network import Network
 from mobility.point import Point
 
 from modules.rlm.RLM import RLM
-from modules.rlm.ReinforcementLearningMethod import ReinforcementLearningMethod
 from network.bs import BS
 from network.hetnet import HetNet
 from network.slice import Slice
@@ -33,7 +31,7 @@ for id_ in range(2, 12):
     h.add_bs(bs_x)
 
 # Roda a Hetnet apenas 1 Vez
-for step in range(10):
+for step in range(1):
 
     # Roda a HetNet com densidade aproximada de 300 UEs/km2
     h.run(user_density=400)
@@ -45,7 +43,7 @@ for step in range(10):
     if h.evaluation['satisfaction'] <= (Network.DEFAULT.outage_threshold * 100):
 
         # Apresenta uma representação visual da Rede
-        h.debug()
+        h.debug("inicial{}.png".format(step))
 
         # Cria uma fatia de rede
         # TODO: Modificar este trecho para criar a fatia com uma parte da hetnet
@@ -53,6 +51,7 @@ for step in range(10):
 
         # Chama o módulo de AR
         rlm = RLM(1, slice_)
-
-
-
+        rlm.run()
+        print(rlm.evaluation)
+        h.run(first_run_flag=False)
+        h.debug("final{}.png".format(step))

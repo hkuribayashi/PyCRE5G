@@ -188,5 +188,5 @@ class HetNet:
         self.evaluation['total_priority_ues'] = self.ueQueue.total_priority_ues
         self.evaluation['total_ordinary_ues'] = self.ueQueue.total_ordinary_ues
 
-    def debug(self):
-        get_visual(self)
+    def debug(self, filename):
+        get_visual(self, filename)

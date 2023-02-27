@@ -23,29 +23,41 @@ class DQN:
         self.max_episode_steps = config.max_episode_steps
         self.total_timesteps = config.total_timesteps
 
-        # Instantiate the custom gym environment
+        # Instancia o ambiente Gym PyCRE
         self.env = gym.make("gym_pycre:pycre-v0", network_slice=network_slice)
 
-        # Create Monitor
-        self.env = Monitor(TimeLimit(env=self.env, max_episode_steps=self.max_episode_steps), filename=os.path.join(GlobalConfig.DEFAULT.rlm_path, "logs"))
+        # Cria um Monitor
+        self.env = Monitor(TimeLimit(env=self.env, max_episode_steps=self.max_episode_steps),
+                           filename=os.path.join(GlobalConfig.DEFAULT.rlm_path, "logs"))
 
-        # Instantiate the model
-        if pretrained_model is None:
-            self.model = DQN_("MlpPolicy", self.env, policy_kwargs=policy, learning_rate=config.learning_rate, verbose=config.verbose)
+        # Verifica se há um modelo treinado
+        path = os.path.join(GlobalConfig.DEFAULT.base_path, "models", "dqn1.zip")
+        if os.path.isfile(path):
+            # Carrega o modelo treinado
+            self.model = DQN_.load(path)
+            self.trainning = False
         else:
-            self.model = DQN_.load(pretrained_model)
+            # Carrega o modelo treinado e registra a necessidade de treinamento
+            self.model = DQN_("MlpPolicy",
+                              self.env,
+                              policy_kwargs=policy,
+                              learning_rate=config.learning_rate,
+                              verbose=config.verbose)
+            self.trainning = True
 
-        # Evaluation
+        # Avaliacao de Resultados
         self.evaluation = dict()
         self.evaluation["satisfaction"] = list()
         self.evaluation["load"] = list()
-        self.evaluation["satisfaction"].append(network_slice.cluster.evaluation["satisfaction"])
+        self.evaluation["satisfaction"].append(network_slice.evaluation)
 
     def learn(self):
-        self.model.learn(total_timesteps=self.total_timesteps)
-        learning_results = {"episode_lengths": self.env.get_episode_lengths(), "episode_rewards": self.env.get_episode_rewards()}
-        self.model.save(os.path.join(GlobalConfig.DEFAULT.rlm_path, "models", "model_{}.zip".format(self.id_)))
-        return learning_results
+        if self.trainning is True:
+            self.model.learn(total_timesteps=self.total_timesteps)
+            learning_results = {"episode_lengths": self.env.get_episode_lengths(),
+                                "episode_rewards": self.env.get_episode_rewards()}
+            self.model.save(os.path.join(GlobalConfig.DEFAULT.base_path, "models", "dqn{}.zip".format(self.id_)))
+            return learning_results
 
     def run(self):
         obs = self.env.reset()
@@ -53,5 +65,6 @@ class DQN:
             action, _states = self.model.predict(obs, deterministic=True)
             obs, reward, done, info = self.env.step(action)
             self.evaluation["satisfaction"].append(info["satisfaction"])
+            self.evaluation["load"].append(info["mean_load"])
             if done:
                 obs = self.env.reset()

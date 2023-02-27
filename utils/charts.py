@@ -5,17 +5,12 @@ from matplotlib.lines import Line2D
 from pandas import DataFrame
 import seaborn as sns
 import matplotlib as mpl
-from sklearn.preprocessing import MinMaxScaler
-from sklearn.preprocessing import StandardScaler
-from stable_baselines3.common.monitor import load_results
-from stable_baselines3.common.results_plotter import ts2xy
 
-from config.DQNConfig import DQNConfig
 from config.GlobalConfig import GlobalConfig
 from config.network import Network
 
 
-def get_visual(hetnet):
+def get_visual(hetnet, filename):
     # Legend
     legend_elements = [Line2D([0], [0], marker='o', color='w', label='MBS', markerfacecolor='b', markersize=10),
                        Line2D([0], [0], marker='o', color='w', label='SBS', markerfacecolor='g', markersize=10),
@@ -53,7 +48,9 @@ def get_visual(hetnet):
             ue_circle = plt.Circle(p, 13.5, color="green", zorder=10)
         ax.add_patch(ue_circle)
 
-    plt.show()
+    path = os.path.join(GlobalConfig.DEFAULT.base_path, "images", filename)
+    plt.savefig(os.path.join(path), dpi=Network.DEFAULT.image_resolution)
+    plt.close()
 
 
 def get_evaluation_evolution(data, filename, marker='', xlim=None, ylim=None, alpha=False):
