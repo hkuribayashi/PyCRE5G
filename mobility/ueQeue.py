@@ -1,5 +1,4 @@
 import random
-import numpy as np
 
 from mobility.point import Point
 from network.ue import UE

@@ -1,18 +1,16 @@
-from algorithms.rl.qlearning.Environment import Environment
 from config.DQNConfig import DQNConfig
-from modules.rlm.ReinforcementLearningMethod import ReinforcementLearningMethod
 from algorithms.rl.dqn.DQN import DQN
-from algorithms.rl.qlearning.QLSingleAgent import QLSigleAgent
 
 
 class RLM:
 
-    def __init__(self, id_, rl_method, network_slice, config, model=None):
-        if rl_method == ReinforcementLearningMethod.QLEARNING:
-            env = Environment(network_slice)
-            self.rl_engine = QLSigleAgent(env, config)
-        elif rl_method == ReinforcementLearningMethod.DQN:
-            self.rl_engine = DQN(id_, network_slice, config, model)
+    def __init__(self, id_, network_slice, rl_method=None, config=None):
+
+        if rl_method is None:
+            if config is None:
+                self.rl_engine = DQN(id_, network_slice, DQNConfig.DEFAULT)
+            else:
+                self.rl_engine = DQN(id_, network_slice, config)
         self.evaluation = None
 
     def learn(self):

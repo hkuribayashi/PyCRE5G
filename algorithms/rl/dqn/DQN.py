@@ -8,7 +8,7 @@ from config.GlobalConfig import GlobalConfig
 
 
 class DQN:
-    def __init__(self, id_, network_slice, config, pretrained_model):
+    def __init__(self, id_, network_slice, config):
         # Set up the ID value
         self.id_ = id_
 
