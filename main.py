@@ -33,14 +33,14 @@ for id_ in range(2, 12):
 # Roda a Hetnet apenas 1 Vez
 for step in range(1):
 
-    # Roda a HetNet com densidade aproximada de 300 UEs/km2
+    # Roda a HetNet com densidade aproximada de 400 UEs/km2
     h.run(user_density=400)
 
     # Imprime qual o grau de satisfção dos UEs
     print("Execução: {} - Satisfação Global: {} | UEs: {}".format(step, h.evaluation['satisfaction'], len(h.ue_list)))
 
     # Se a safisfação dos UEs for menor que um valor defindo em Network.DEFAULT.outage_threshold
-    if h.evaluation['satisfaction'] <= (Network.DEFAULT.outage_threshold * 100):
+    if h.evaluation['satisfaction'] < (Network.DEFAULT.outage_threshold * 100):
 
         # Apresenta uma representação visual da Rede
         h.debug("inicial{}.png".format(step))
@@ -49,7 +49,7 @@ for step in range(1):
         # TODO: Modificar este trecho para criar a fatia com uma parte da hetnet
         slice_ = Slice(h)
 
-        # Chama o módulo de AR
+        # Chama o RLM
         rlm = RLM(1, slice_)
         rlm.run()
         print(rlm.evaluation)

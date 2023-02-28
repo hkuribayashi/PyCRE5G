@@ -3,7 +3,7 @@ from enum import Enum
 
 class DQNConfig(Enum):
 
-    DEFAULT = (10000, 100, 0.99, 0.1, [32, 32], 1)
+    DEFAULT = (10000, 100, 0.99, 0.1, [64, 64], 1)
 
     def __init__(self, total_timesteps, max_episode_steps, gamma, learning_rate, net_arch, verbose):
 
